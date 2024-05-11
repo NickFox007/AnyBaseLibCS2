@@ -9,9 +9,7 @@ using System.Data.Common;
 namespace AnyBaseLib.Bases
 {
     internal static class Common
-    {
-        static bool prev_modify = false;
-        
+    {       
         public static string _PrepareClear(string q, List<string> args)
         {
             var new_q = q;
@@ -23,7 +21,6 @@ namespace AnyBaseLib.Bases
                 new_q = new_q2;
             }
             if (new_q.Contains("{ARG}")) throw new Exception("Mailformed query [Not enough args]");
-
             return new_q;
         }
 
@@ -36,16 +33,14 @@ namespace AnyBaseLib.Bases
             {
                 new_arg = new_arg.Replace(escape, $"\\{escape}");
             }
-
             return new_arg;
         }
-
 
         public static List<List<string>> _Query(DbConnection conn, string q, bool non_query)
         {
             var sql = conn.CreateCommand();
             sql.CommandText = q;
-            Console.WriteLine(q);
+            //Console.WriteLine(q);
             if (!non_query)
             {
                 var list = new List<List<string>>();
@@ -59,21 +54,16 @@ namespace AnyBaseLib.Bases
                         for (int i = 0; i < reader.FieldCount; i++)
                         {
                             fields.Add(reader.GetString(i));
-                            Console.WriteLine($"Got field: {reader.GetString(i)}");
+                            //Console.WriteLine($"Got field: {reader.GetString(i)}");
                         }
                         list.Add(fields);
                     }
-
                 }
-
                 return list;
             }
             else
                 sql.ExecuteNonQuery();
-
-
             return null;
-
         }
 
         public static bool Init(DbConnection conn, string name)
@@ -102,7 +92,6 @@ namespace AnyBaseLib.Bases
                 Console.WriteLine($"Error was caused: {e.Message}");
             }
             return null;
-
         }
         
     }
