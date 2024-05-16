@@ -49,9 +49,42 @@ namespace AnyBaseLib.Bases
             }    
 
             return Common.Query(dbConn, Common._PrepareClear(_FixForSQLite(q), args), non_query);
-
         }
 
+        public void QueryAsync(string q, List<string> args, Action<List<List<string>>> action = null, bool non_query = false)
+        {
+            if (commit_mode != CommitMode.AutoCommit)
+            {
+                if (!trans_started && non_query) SetTransState(true);
+                else
+                {
+                    if (trans_started && !non_query) SetTransState(false);
+                }
+            }
+
+            Common.QueryAsync(dbConn, Common._PrepareClear(_FixForSQLite(q), args), action, non_query);
+        }
+        /*
+        public void QueryDapperAsync(Type type, string q, List<string> args = null, Action<object> action = null)
+        {
+            if (commit_mode != CommitMode.AutoCommit)
+            {
+                if (trans_started) SetTransState(false);
+            }
+
+            Common.QueryDapperAsync(dbConn, type, Common._PrepareClear(_FixForSQLite(q), args), action);
+        }
+
+        public object QueryDapper(Type type, string q, List<string> args = null, Action<object> action = null)
+        {
+            if (commit_mode != CommitMode.AutoCommit)
+            {                
+                if (trans_started) SetTransState(false);    
+            }
+
+            return Common.QueryDapper(dbConn, type, Common._PrepareClear(_FixForSQLite(q), args));
+        }
+        */
         private void SetTransState(bool state)            
         {
             if(state)
@@ -70,6 +103,9 @@ namespace AnyBaseLib.Bases
                 trans_started = false;
             }
         }
+
+        public DbConnection GetConn()
+        { return dbConn; }
 
         public bool Init()
         {

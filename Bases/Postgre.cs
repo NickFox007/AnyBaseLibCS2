@@ -48,7 +48,20 @@ namespace AnyBaseLib.Bases
             }
 
             return Common.Query(dbConn, Common._PrepareClear(q, args), non_query);
+        }
+        public void QueryAsync(string q, List<string> args, Action<List<List<string>>> action = null, bool non_query = false)
+        {
 
+            if (commit_mode != CommitMode.AutoCommit)
+            {
+                if (!trans_started && non_query) SetTransState(true);
+                else
+                {
+                    if (trans_started && !non_query) SetTransState(false);
+                }
+            }
+
+            Common.QueryAsync(dbConn, Common._PrepareClear(q, args), action, non_query);
         }
 
         private void SetTransState(bool state)
@@ -68,6 +81,9 @@ namespace AnyBaseLib.Bases
                 trans_started = false;
             }
         }
+
+        public DbConnection GetConn()
+        { return dbConn; }
 
         public bool Init()
         {

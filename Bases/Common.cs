@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Data.Common;
+using Dapper;
 
 namespace AnyBaseLib.Bases
 {
@@ -36,11 +37,13 @@ namespace AnyBaseLib.Bases
             return new_arg;
         }
 
+        
         public static List<List<string>> _Query(DbConnection conn, string q, bool non_query)
         {
+
             var sql = conn.CreateCommand();
             sql.CommandText = q;
-            //Console.WriteLine(q);
+            //Console.WriteLine($"Query: {q} [Non-query: {non_query}]");
             if (!non_query)
             {
                 var list = new List<List<string>>();
@@ -66,6 +69,7 @@ namespace AnyBaseLib.Bases
             return null;
         }
 
+
         public static bool Init(DbConnection conn, string name)
         {
             try
@@ -80,6 +84,21 @@ namespace AnyBaseLib.Bases
             }
         }
 
+        public static void QueryAsync(DbConnection conn, string q, Action<List<List<string>>> action = null, bool non_query = false)
+        {
+            var task = new Task<List<List<string>>>(() => Query(conn, q, non_query));
+            task.Start();
+            if (action != null) task.ContinueWith((obj) => action(obj.Result));            
+        }
+
+        /*
+        public static void QueryDapperAsync(DbConnection conn, Type type, string q, Action<object> action = null, bool non_query = false)
+        {
+            var task = new Task<object>(() => QueryDapper(conn, type, q, non_query));
+            task.Start();
+            if (action != null) task.ContinueWith((obj) => action(obj.Result));
+        }
+        */
         public static List<List<string>> Query(DbConnection conn, string q, bool non_query = false)
         {
             try
@@ -89,11 +108,42 @@ namespace AnyBaseLib.Bases
 
             catch (Exception e)
             {
-                Console.WriteLine($"Error was caused: {e.Message}");
+                Console.WriteLine($"[Query] Error was caused while querying \"{q}\":\n{e.Message}");
             }
             return null;
         }
-        
+        /*
+
+        public static object QueryDapper(DbConnection conn, Type type, string q, bool non_query = false)
+        {
+            try
+            {
+                return Common._QueryDapper(conn, q, non_query);
+            }
+
+            catch (Exception e)
+            {
+                Console.WriteLine($"[QueryDapper] Error was caused while fetching query \"{q}\":\n{e.Message}");
+            }
+            return null;
+        }*/
+
+        /*
+        public static object QueryDapper(DbConnection conn, string q, bool non_query)
+        {
+            try
+            {
+                return Common._Query2(conn, q, non_query);
+            }
+
+            catch (Exception e)
+            {
+                Console.WriteLine($"Error was caused while fetching query \"{q}\":\n{e.Message}");
+            }
+            return null;
+        }
+        */
+
     }
     public enum CommitMode
     {

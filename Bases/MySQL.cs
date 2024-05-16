@@ -48,6 +48,24 @@ namespace AnyBaseLib.Bases
 
         }
 
+        public void QueryAsync(string q, List<string> args, Action<List<List<string>>> action = null, bool non_query = false)
+        {
+            if (commit_mode != CommitMode.AutoCommit)
+            {
+                if (!trans_started && non_query) SetTransState(true);
+                else
+                {
+                    if (trans_started && !non_query) SetTransState(false);
+                }
+            }
+
+            Common.QueryAsync(dbConn, Common._PrepareClear(q, args), action, non_query);
+        }
+
+        public DbConnection GetConn()
+        { return dbConn; }
+
+
         private void SetTransState(bool state)
         {
             if (state)
