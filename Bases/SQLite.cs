@@ -29,11 +29,8 @@ namespace AnyBaseLib.Bases
         }
 
         private string _FixForSQLite(string q)
-        {            
-            var new_q = q;
-            if (new_q.Contains("CREATE TABLE ") && new_q.Contains(" PRIMARY KEY")) new_q = $"{new_q} WITHOUT ROWID";
-
-            return new_q;
+        {
+            return q.Replace("PRIMARY KEY AUTO_INCREMENT", "PRIMARY KEY AUTOINCREMENT");
         }
 
 

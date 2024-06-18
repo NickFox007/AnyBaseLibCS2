@@ -6,11 +6,15 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Data.Common;
 using Dapper;
+using System.Runtime.CompilerServices;
+using System.Reflection;
+using System.Data;
 
 namespace AnyBaseLib.Bases
 {
     internal static class Common
     {       
+        private static string logpath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),"queries.txt");
         public static string _PrepareClear(string q, List<string> args)
         {
             var new_q = q;
@@ -40,7 +44,7 @@ namespace AnyBaseLib.Bases
         
         public static List<List<string>> _Query(DbConnection conn, string q, bool non_query)
         {
-
+            File.AppendAllText(logpath, $"[{DateTime.Now}] {q} (Non-query: {non_query})\n");
             var sql = conn.CreateCommand();
             sql.CommandText = q;
             //Console.WriteLine($"Query: {q} [Non-query: {non_query}]");
@@ -56,8 +60,12 @@ namespace AnyBaseLib.Bases
 
                         for (int i = 0; i < reader.FieldCount; i++)
                         {
-                            fields.Add(reader.GetString(i));
-                            //Console.WriteLine($"Got field: {reader.GetString(i)}");
+                            if (!reader.IsDBNull(i))
+                            {
+                                fields.Add(reader.GetValue(i).ToString());
+                            }
+                            else
+                                fields.Add(null);                            
                         }
                         list.Add(fields);
                     }
@@ -108,7 +116,7 @@ namespace AnyBaseLib.Bases
 
             catch (Exception e)
             {
-                Console.WriteLine($"[Query] Error was caused while querying \"{q}\":\n{e.Message}");
+                Console.WriteLine($"[Query] Error was caused while querying \"{q}\":\n{e.Message}\n\n{e.StackTrace}");
             }
             return null;
         }

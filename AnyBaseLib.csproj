@@ -34,11 +34,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Dapper.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.0" />
     <PackageReference Include="MySqlConnector" Version="2.3.7" />
     <PackageReference Include="Npgsql" Version="8.0.3" />
     <PackageReference Include="SQLitePCLRaw.core" Version="2.1.8" />
     <PackageReference Include="SQLitePCLRaw.provider.e_sqlite3" Version="2.1.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Dapper">
+      <HintPath>Dapper.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
