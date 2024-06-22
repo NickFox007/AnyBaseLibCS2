@@ -26,8 +26,20 @@ namespace AnyBaseLib.Bases
         {            
             this.commit_mode = commit_mode;
             dbConn = new SqliteConnection($"Data Source={db_name}.sqlite;");
+
+            if (commit_mode != CommitMode.AutoCommit)
+                new Task(TimerCommit).Start();
         }
 
+        private void TimerCommit()
+        {
+            while (true)
+            {
+                if (trans_started)
+                    SetTransState(false);
+                Thread.Sleep(5000);
+            }
+        }
         private string _FixForSQLite(string q)
         {
             return q.Replace("PRIMARY KEY AUTO_INCREMENT", "PRIMARY KEY AUTOINCREMENT");

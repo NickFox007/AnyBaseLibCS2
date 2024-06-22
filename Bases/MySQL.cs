@@ -21,16 +21,38 @@ namespace AnyBaseLib.Bases
         {
             this.commit_mode = commit_mode;
 
+            var db_host_arr = db_host.Split(":");
+            var db_server = db_host_arr[0];
+            uint db_port = 3306;
+            if (db_host_arr.Length > 1)
+                db_port = uint.Parse(db_host_arr[1]);
+
+
             var builder = new MySqlConnectionStringBuilder
             {
-                Server = db_host,
+                Server = db_server,
                 Database = db_name,
                 UserID = db_user,
                 Password = db_pass,
                 SslMode = MySqlSslMode.Preferred,
+                Port = db_port
+                
             };
 
             dbConn = new MySqlConnection(builder.ConnectionString);
+
+            if (commit_mode != CommitMode.AutoCommit)
+                new Task(TimerCommit).Start();
+        }
+
+        private void TimerCommit()
+        {
+            while (true)
+            {
+                if (trans_started)
+                    SetTransState(false);
+                Thread.Sleep(5000);
+            }
         }
 
         public List<List<string>> Query(string q, List<string> args, bool non_query = false)

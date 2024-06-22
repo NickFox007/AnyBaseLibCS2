@@ -44,7 +44,8 @@ namespace AnyBaseLib.Bases
         
         public static List<List<string>> _Query(DbConnection conn, string q, bool non_query)
         {
-            File.AppendAllText(logpath, $"[{DateTime.Now}] {q} (Non-query: {non_query})\n");
+            //File.AppendAllText(logpath, $"[{DateTime.Now}] {q} (Non-query: {non_query})\n");
+            if (conn.State != ConnectionState.Open) conn.Open();
             var sql = conn.CreateCommand();
             sql.CommandText = q;
             //Console.WriteLine($"Query: {q} [Non-query: {non_query}]");
@@ -65,7 +66,7 @@ namespace AnyBaseLib.Bases
                                 fields.Add(reader.GetValue(i).ToString());
                             }
                             else
-                                fields.Add(null);                            
+                                fields.Add(null);
                         }
                         list.Add(fields);
                     }

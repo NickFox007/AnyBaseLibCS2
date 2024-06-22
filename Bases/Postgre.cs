@@ -21,18 +21,37 @@ namespace AnyBaseLib.Bases
         {
             this.commit_mode = commit_mode;
 
+            var db_host_arr = db_host.Split(":");
+            var db_server = db_host_arr[0];
+            int db_port = 3306;
+            if (db_host_arr.Length > 1)
+                db_port = int.Parse(db_host_arr[1]);
+
             var builder = new NpgsqlConnectionStringBuilder
             {
-                Host = db_host,
+                Host = db_server,
                 Database = db_name,
                 Username = db_user,
                 Password = db_pass,
                 SslMode = SslMode.Prefer,
+                Port = db_port
                 
             };
 
-
             dbConn = new NpgsqlConnection(builder.ConnectionString);
+
+            if (commit_mode != CommitMode.AutoCommit)
+                new Task(TimerCommit).Start();
+        }
+
+        private void TimerCommit()
+        {
+            while (true)
+            {
+                if (trans_started)
+                    SetTransState(false);
+                Thread.Sleep(5000);
+            }
         }
 
         public List<List<string>> Query(string q, List<string> args, bool non_query = false)

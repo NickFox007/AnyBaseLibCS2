@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace AnyBaseLib
 {
     public static class CAnyBase
@@ -18,5 +19,8 @@ namespace AnyBaseLib
                 default: return null;
             }
         }
+
+        public static int Version()
+        { return 4; }
     }
 }
