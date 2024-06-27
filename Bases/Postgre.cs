@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -16,6 +17,7 @@ namespace AnyBaseLib.Bases
         private CommitMode commit_mode;
         private bool trans_started;
         private DbTransaction transaction;
+        private string builder;
 
         public void Set(CommitMode commit_mode, string db_name, string db_host, string db_user = "", string db_pass = "")
         {
@@ -27,7 +29,7 @@ namespace AnyBaseLib.Bases
             if (db_host_arr.Length > 1)
                 db_port = int.Parse(db_host_arr[1]);
 
-            var builder = new NpgsqlConnectionStringBuilder
+            builder = new NpgsqlConnectionStringBuilder
             {
                 Host = db_server,
                 Database = db_name,
@@ -36,9 +38,9 @@ namespace AnyBaseLib.Bases
                 SslMode = SslMode.Prefer,
                 Port = db_port
                 
-            };
+            }.ConnectionString;
 
-            dbConn = new NpgsqlConnection(builder.ConnectionString);
+            dbConn = GetNewConn();
 
             if (commit_mode != CommitMode.AutoCommit)
                 new Task(TimerCommit).Start();
@@ -70,7 +72,7 @@ namespace AnyBaseLib.Bases
         }
         public void QueryAsync(string q, List<string> args, Action<List<List<string>>> action = null, bool non_query = false)
         {
-
+            /*
             if (commit_mode != CommitMode.AutoCommit)
             {
                 if (!trans_started && non_query) SetTransState(true);
@@ -78,9 +80,16 @@ namespace AnyBaseLib.Bases
                 {
                     if (trans_started && !non_query) SetTransState(false);
                 }
-            }
+            }*/
 
-            Common.QueryAsync(dbConn, Common._PrepareClear(q, args), action, non_query);
+            Common.QueryAsync(GetNewConn(), Common._PrepareClear(q, args), action, non_query);
+        }
+
+        private NpgsqlConnection GetNewConn()
+        {
+            var conn = new NpgsqlConnection(builder);
+            conn.Open();
+            return conn;
         }
 
         private void SetTransState(bool state)
@@ -96,7 +105,7 @@ namespace AnyBaseLib.Bases
                     transaction.Rollback();
                 else
                     transaction.Commit();
-                transaction.Dispose();
+                //transaction.Dispose();
                 trans_started = false;
             }
         }

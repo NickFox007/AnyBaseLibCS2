@@ -9,23 +9,24 @@ using Dapper;
 using System.Runtime.CompilerServices;
 using System.Reflection;
 using System.Data;
+using System.Reflection.Metadata.Ecma335;
 
 namespace AnyBaseLib.Bases
 {
     internal static class Common
     {       
-        private static string logpath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),"queries.txt");
+        //private static string logpath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),"queries.txt");
         public static string _PrepareClear(string q, List<string> args)
         {
             var new_q = q;
-            if(args != null) foreach (var arg in args)
+            if(args != null) foreach (var arg in args.ToList())
             {
                 var regex = new Regex(Regex.Escape("{ARG}"));
                 var new_q2 = regex.Replace(new_q, _PrepareArg(arg), 1);
-                if (new_q2 == new_q) throw new Exception("Mailformed query [Too many args]");
+                if (new_q2 == new_q) throw new Exception("Mailformed query [Too many args in params]");
                 new_q = new_q2;
             }
-            if (new_q.Contains("{ARG}")) throw new Exception("Mailformed query [Not enough args]");
+            if (new_q.Contains("{ARG}")) throw new Exception("Mailformed query [Not enough args in params]");
             return new_q;
         }
 
@@ -93,9 +94,10 @@ namespace AnyBaseLib.Bases
             }
         }
 
-        public static void QueryAsync(DbConnection conn, string q, Action<List<List<string>>> action = null, bool non_query = false)
+        public static void QueryAsync(DbConnection conn, string q, Action<List<List<string>>> action = null, bool non_query = false, bool close = true)
         {
-            var task = new Task<List<List<string>>>(() => Query(conn, q, non_query));
+            var task = new Task<List<List<string>>>(() => Query(conn, q, non_query, close));
+            //var task = Task.Run<List<List<string>>>(() => Query(conn, q, non_query, close));
             task.Start();
             if (action != null) task.ContinueWith((obj) => action(obj.Result));            
         }
@@ -108,17 +110,23 @@ namespace AnyBaseLib.Bases
             if (action != null) task.ContinueWith((obj) => action(obj.Result));
         }
         */
-        public static List<List<string>> Query(DbConnection conn, string q, bool non_query = false)
+        public static List<List<string>> Query(DbConnection conn, string q, bool non_query = false, bool close = false)
         {
             try
             {
-                return Common._Query(conn, q, non_query);
+
+                var ret = _Query(conn, q, non_query);
+                if (close) conn.Close();
+                return ret;
+                
             }
 
             catch (Exception e)
             {
+                //if (close) conn.Close();
                 Console.WriteLine($"[Query] Error was caused while querying \"{q}\":\n{e.Message}\n\n{e.StackTrace}");
             }
+
             return null;
         }
         /*

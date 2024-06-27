@@ -19,7 +19,7 @@ namespace AnyBaseLib.Bases
         
         private SqliteConnection dbConn;
         private CommitMode commit_mode;
-        private bool trans_started;
+        private bool trans_started = false;
         private DbTransaction transaction;
 
         public void Set(CommitMode commit_mode, string db_name, string db_host = "", string db_user = "", string db_pass = "")
@@ -38,6 +38,7 @@ namespace AnyBaseLib.Bases
                 if (trans_started)
                     SetTransState(false);
                 Thread.Sleep(5000);
+                //Task.Delay(5000);
             }
         }
         private string _FixForSQLite(string q)
@@ -62,16 +63,7 @@ namespace AnyBaseLib.Bases
 
         public void QueryAsync(string q, List<string> args, Action<List<List<string>>> action = null, bool non_query = false)
         {
-            if (commit_mode != CommitMode.AutoCommit)
-            {
-                if (!trans_started && non_query) SetTransState(true);
-                else
-                {
-                    if (trans_started && !non_query) SetTransState(false);
-                }
-            }
-
-            Common.QueryAsync(dbConn, Common._PrepareClear(_FixForSQLite(q), args), action, non_query);
+            Common.QueryAsync(dbConn, Common._PrepareClear(_FixForSQLite(q), args), action, non_query, false);
         }
         /*
         public void QueryDapperAsync(Type type, string q, List<string> args = null, Action<object> action = null)
@@ -104,11 +96,11 @@ namespace AnyBaseLib.Bases
             }
             else
             {
-                if(commit_mode == CommitMode.NoCommit)
+                if (commit_mode == CommitMode.NoCommit)
                     transaction.Rollback();
                 else
                     transaction.Commit();
-                transaction.Dispose();
+                //transaction.Dispose();
                 trans_started = false;
             }
         }
