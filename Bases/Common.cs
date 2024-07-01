@@ -33,12 +33,15 @@ namespace AnyBaseLib.Bases
         public static string _PrepareArg(string arg)
         {
             var new_arg = arg;
+
+            
             string[] escapes = ["'", "\"", "`", "%", "-", "_"];
 
             foreach (var escape in escapes)
             {
                 new_arg = new_arg.Replace(escape, $"\\{escape}");
             }
+            
             return new_arg;
         }
 

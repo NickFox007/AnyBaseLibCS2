@@ -23,7 +23,7 @@ namespace AnyBaseLib.Bases
         private DbTransaction transaction;
 
         public void Set(CommitMode commit_mode, string db_name, string db_host = "", string db_user = "", string db_pass = "")
-        {            
+        {
             this.commit_mode = commit_mode;
             dbConn = new SqliteConnection($"Data Source={db_name}.sqlite;");
 
@@ -43,7 +43,7 @@ namespace AnyBaseLib.Bases
         }
         private string _FixForSQLite(string q)
         {
-            return q.Replace("PRIMARY KEY AUTO_INCREMENT", "PRIMARY KEY AUTOINCREMENT");
+            return q.Replace("PRIMARY KEY AUTO_INCREMENT", "PRIMARY KEY AUTOINCREMENT").Replace("UNIX_TIMESTAMP()", "UNIXEPOCH()");
         }
 
 
