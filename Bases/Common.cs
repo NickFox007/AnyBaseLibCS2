@@ -32,8 +32,9 @@ namespace AnyBaseLib.Bases
 
         public static string _PrepareArg(string arg)
         {
+            if (arg == null) return "";
+            
             var new_arg = arg;
-
             
             string[] escapes = ["'", "\"", "`", "%", "-", "_"];
 
@@ -99,10 +100,11 @@ namespace AnyBaseLib.Bases
 
         public static void QueryAsync(DbConnection conn, string q, Action<List<List<string>>> action = null, bool non_query = false, bool close = true)
         {
-            var task = new Task<List<List<string>>>(() => Query(conn, q, non_query, close));
-            //var task = Task.Run<List<List<string>>>(() => Query(conn, q, non_query, close));
-            task.Start();
-            if (action != null) task.ContinueWith((obj) => action(obj.Result));            
+            if(action != null)
+                Task.Run(() => Query(conn, q, non_query, close)).ContinueWith((obj) => action(obj.Result));
+            else
+                Task.Run(() => Query(conn, q, non_query, close));
+
         }
 
         /*

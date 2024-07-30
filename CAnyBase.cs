@@ -16,11 +16,11 @@ namespace AnyBaseLib
                 case "sqlite": return new Bases.SQLiteDriver();
                 case "mysql": return new Bases.MySQLDriver();
                 case "postgre": return new Bases.PostgreDriver();
-                default: return null;
+                default: throw new Exception("Unknown DB type");
             }
         }
 
         public static int Version()
-        { return 6; }
+        { return 7; }
     }
 }
