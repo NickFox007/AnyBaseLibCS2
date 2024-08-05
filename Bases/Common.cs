@@ -14,15 +14,30 @@ using System.Reflection.Metadata.Ecma335;
 namespace AnyBaseLib.Bases
 {
     internal static class Common
-    {       
+    {
         //private static string logpath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),"queries.txt");
+        private static string ReplaceFirst(this string text, string search, string replace)
+        {
+            int pos = text.IndexOf(search);
+            if (pos < 0)
+            {
+                return text;
+            }
+            return text.Substring(0, pos) + replace + text.Substring(pos + search.Length);
+        }
+
         public static string _PrepareClear(string q, List<string> args)
         {
             var new_q = q;
             if(args != null) foreach (var arg in args.ToList())
             {
-                var regex = new Regex(Regex.Escape("{ARG}"));
-                var new_q2 = regex.Replace(new_q, _PrepareArg(arg), 1);
+                //var regex = new Regex(Regex.Escape("{ARG}"));
+                
+                //var new_q2 = regex.Replace(new_q, _PrepareArg(arg), 1);
+
+                var new_q2 = ReplaceFirst(new_q, "{ARG}", _PrepareArg(arg));
+
+
                 if (new_q2 == new_q) throw new Exception("Mailformed query [Too many args in params]");
                 new_q = new_q2;
             }
@@ -36,7 +51,8 @@ namespace AnyBaseLib.Bases
             
             var new_arg = arg;
             
-            string[] escapes = ["'", "\"", "`", "%", "-", "_"];
+            //string[] escapes = ["'", "\"", "`", "%", "-", "_"];
+            string[] escapes = ["'", "\"", "`", "%"];
 
             foreach (var escape in escapes)
             {

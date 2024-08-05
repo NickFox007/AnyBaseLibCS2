@@ -21,6 +21,6 @@ namespace AnyBaseLib
         }
 
         public static int Version()
-        { return 7; }
+        { return 8; }
     }
 }
