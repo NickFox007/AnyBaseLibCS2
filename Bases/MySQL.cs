@@ -101,7 +101,10 @@ namespace AnyBaseLib.Bases
         public DbConnection GetConn()
         { return dbConn; }
 
-
+        public void Close()
+        {
+            dbConn.Close();
+        }
         private void SetTransState(bool state)
         {
             if (state)

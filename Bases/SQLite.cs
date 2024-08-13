@@ -108,6 +108,10 @@ namespace AnyBaseLib.Bases
         public DbConnection GetConn()
         { return dbConn; }
 
+        public void Close()
+        {
+            dbConn.Close();
+        }
         public bool Init()
         {
             SQLitePCL.Batteries.Init();

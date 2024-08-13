@@ -113,6 +113,11 @@ namespace AnyBaseLib.Bases
         public DbConnection GetConn()
         { return dbConn; }
 
+        public void Close()
+        {
+            dbConn.Close();
+        }
+
         public bool Init()
         {
             return Common.Init(dbConn, "PostgreSQL");

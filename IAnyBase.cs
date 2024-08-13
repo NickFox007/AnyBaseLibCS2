@@ -14,4 +14,5 @@ public interface IAnyBase
     public DbConnection GetConn();
 
     public bool Init();
+    public void Close();
 }
