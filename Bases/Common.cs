@@ -52,7 +52,7 @@ namespace AnyBaseLib.Bases
             var new_arg = arg;
             
             //string[] escapes = ["'", "\"", "`", "%", "-", "_"];
-            string[] escapes = ["'", "\"", "`", "%"];
+            string[] escapes = ["'", "\"", "`", "%", "\\"];
 
             foreach (var escape in escapes)
             {
