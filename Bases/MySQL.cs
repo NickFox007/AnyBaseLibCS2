@@ -36,7 +36,7 @@ namespace AnyBaseLib.Bases
                 Database = db_name,
                 UserID = db_user,
                 Password = db_pass,
-                SslMode = MySqlSslMode.Preferred,
+                SslMode = MySqlSslMode.None,
                 Port = db_port
                 
             }.ConnectionString;
