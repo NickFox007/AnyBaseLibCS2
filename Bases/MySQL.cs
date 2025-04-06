@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Text;
@@ -54,7 +55,6 @@ namespace AnyBaseLib.Bases
                 if (trans_started)
                     SetTransState(false);
                 Thread.Sleep(5000);
-                //Task.Delay(5000);
             }
         }
 
@@ -69,32 +69,24 @@ namespace AnyBaseLib.Bases
                 }
             }
 
-            return Common.Query(dbConn, Common._PrepareClear(q, args), non_query);
+            return Common.Query(GetNewConn(), Common._PrepareClear(q, args), non_query);
 
         }
 
         public void QueryAsync(string q, List<string> args, Action<List<List<string>>> action = null, bool non_query = false)
         {
-            /*
-            if (commit_mode == CommitMode.TimerCommit)
-            {
-                if (!trans_started && non_query) SetTransState(true);
-                else
-                {
-                    if (trans_started && !non_query) SetTransState(false);
-                }
-            }
-            */
 
-
-            Common.QueryAsync(GetNewConn(), Common._PrepareClear(q, args), action, non_query);
+            var task = new Task<MySqlConnection>(() => GetNewConn());
+            task.ContinueWith((conn) => Common.QueryAsync(conn.Result, Common._PrepareClear(q, args), action, non_query));            
+            task.Start();
         }
 
         private MySqlConnection GetNewConn(bool open = true)
         {
-            var conn = new MySqlConnection(builder);
-            
-            if (open) conn.Open();
+            var conn = new MySqlConnection(builder);   
+            //Console.WriteLine("[ !!! DEBUG !!! ] Get new conn...");
+            if(conn != null && conn.State != ConnectionState.Open && open) conn.Open();
+            dbConn = conn;
             return conn;
         }
 
@@ -103,7 +95,8 @@ namespace AnyBaseLib.Bases
 
         public void Close()
         {
-            dbConn.Close();
+            if(dbConn != null && dbConn.State == ConnectionState.Open)
+                dbConn.Close();
         }
         private void SetTransState(bool state)
         {

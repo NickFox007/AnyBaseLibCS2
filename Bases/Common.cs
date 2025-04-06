@@ -31,12 +31,7 @@ namespace AnyBaseLib.Bases
             var new_q = q;
             if(args != null) foreach (var arg in args.ToList())
             {
-                //var regex = new Regex(Regex.Escape("{ARG}"));
-                
-                //var new_q2 = regex.Replace(new_q, _PrepareArg(arg), 1);
-
                 var new_q2 = ReplaceFirst(new_q, "{ARG}", _PrepareArg(arg));
-
 
                 if (new_q2 == new_q) throw new Exception("Mailformed query [Too many args in params]");
                 new_q = new_q2;
@@ -65,17 +60,16 @@ namespace AnyBaseLib.Bases
         
         public static List<List<string>> _Query(DbConnection conn, string q, bool non_query)
         {
-            //File.AppendAllText(logpath, $"[{DateTime.Now}] {q} (Non-query: {non_query})\n");
             if (conn.State != ConnectionState.Open) conn.Open();
             var sql = conn.CreateCommand();
             sql.CommandText = q;
-            //Console.WriteLine($"Query: {q} [Non-query: {non_query}]");
             if (!non_query)
             {
                 var list = new List<List<string>>();
 
-                using (var reader = sql.ExecuteReader())
+                using (var readerAs = sql.ExecuteReaderAsync())
                 {
+                    var reader = readerAs.Result;
                     while (reader.Read())
                     {
                         var fields = new List<string>();
@@ -116,23 +110,26 @@ namespace AnyBaseLib.Bases
 
         public static void QueryAsync(DbConnection conn, string q, Action<List<List<string>>> action = null, bool non_query = false, bool close = true)
         {
-            if(action != null)
-                Task.Run(() => Query(conn, q, non_query, close)).ContinueWith((obj) => action(obj.Result));
-            else
-                Task.Run(() => Query(conn, q, non_query, close));
+            int wait_opened = 10;
+            while(wait_opened > 0)
+            {
+                if (conn.State == ConnectionState.Open)
+                    break;
+                wait_opened--;
+                Task.Delay(150).Wait();
+            }
 
-        }
+            if (wait_opened == 0) throw new Exception("Error caused while open database connection");
 
-        /*
-        public static void QueryDapperAsync(DbConnection conn, Type type, string q, Action<object> action = null, bool non_query = false)
-        {
-            var task = new Task<object>(() => QueryDapper(conn, type, q, non_query));
+            var task = new Task<List<List<string>>>(() => Query(conn, q, non_query, close));
+            if (action != null) task.ContinueWith(obj => action(obj.Result));
             task.Start();
-            if (action != null) task.ContinueWith((obj) => action(obj.Result));
+
         }
-        */
+
         public static List<List<string>> Query(DbConnection conn, string q, bool non_query = false, bool close = false)
         {
+            //Console.WriteLine("[ !!! DEBUG !!! ] Sync query . . .");
             try
             {
 
@@ -144,7 +141,7 @@ namespace AnyBaseLib.Bases
 
             catch (Exception e)
             {
-                //if (close) conn.Close();
+                if (close) conn.Close();
                 Console.WriteLine($"[Query] Error was caused while querying \"{q}\":\n{e.Message}\n\n{e.StackTrace}");
             }
 
