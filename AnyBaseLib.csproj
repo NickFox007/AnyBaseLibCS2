@@ -5,7 +5,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Configurations>Debug;Release;1</Configurations>
+    <Configurations>Debug;Release</Configurations>
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
@@ -25,30 +25,12 @@
     <DebugType>portable</DebugType>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='1|AnyCPU'">
-    <DebugType>portable</DebugType>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='1|x64'">
-    <DebugType>portable</DebugType>
-  </PropertyGroup>
-
   <ItemGroup>
-    <None Remove="Dapper.dll" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.0" />
-    <PackageReference Include="MySqlConnector" Version="2.3.7" />
-    <PackageReference Include="Npgsql" Version="8.0.3" />
-    <PackageReference Include="SQLitePCLRaw.core" Version="2.1.8" />
-    <PackageReference Include="SQLitePCLRaw.provider.e_sqlite3" Version="2.1.8" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Dapper">
-      <HintPath>Dapper.dll</HintPath>
-    </Reference>
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.7" />
+    <PackageReference Include="MySqlConnector" Version="2.4.0" />
+    <PackageReference Include="Npgsql" Version="9.0.3" />
+    <PackageReference Include="SQLitePCLRaw.core" Version="3.0.0" />
+    <PackageReference Include="SQLitePCLRaw.provider.e_sqlite3" Version="3.0.0" />
   </ItemGroup>
 
 </Project>

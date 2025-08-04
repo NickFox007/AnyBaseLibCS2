@@ -1,15 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Data.Common;
-using Dapper;
-using System.Runtime.CompilerServices;
-using System.Reflection;
+﻿using System.Data.Common;
 using System.Data;
-using System.Reflection.Metadata.Ecma335;
 
 namespace AnyBaseLib.Bases
 {
@@ -162,37 +152,6 @@ namespace AnyBaseLib.Bases
 
             return null;
         }
-        /*
-
-        public static object QueryDapper(DbConnection conn, Type type, string q, bool non_query = false)
-        {
-            try
-            {
-                return Common._QueryDapper(conn, q, non_query);
-            }
-
-            catch (Exception e)
-            {
-                Console.WriteLine($"[QueryDapper] Error was caused while fetching query \"{q}\":\n{e.Message}");
-            }
-            return null;
-        }*/
-
-        /*
-        public static object QueryDapper(DbConnection conn, string q, bool non_query)
-        {
-            try
-            {
-                return Common._Query2(conn, q, non_query);
-            }
-
-            catch (Exception e)
-            {
-                Console.WriteLine($"Error was caused while fetching query \"{q}\":\n{e.Message}");
-            }
-            return null;
-        }
-        */
 
     }
     public enum CommitMode

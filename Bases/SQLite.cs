@@ -1,16 +1,5 @@
 ﻿using Microsoft.Data.Sqlite;
-//using System.Data.SQLite;
-
-using System;
-using System.Collections.Generic;
 using System.Data.Common;
-using System.Data.SqlTypes;
-using System.Linq;
-using System.Security.AccessControl;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-//using System.Data.SQLite;
 
 namespace AnyBaseLib.Bases
 {
@@ -91,27 +80,6 @@ namespace AnyBaseLib.Bases
             Common.QueryAsync(dbConn, Common._PrepareClear(_FixForSQLite(q), args, _PrepareArg), action, non_query, false);
             
         }
-        /*
-        public void QueryDapperAsync(Type type, string q, List<string> args = null, Action<object> action = null)
-        {
-            if (commit_mode != CommitMode.AutoCommit)
-            {
-                if (trans_started) SetTransState(false);
-            }
-
-            Common.QueryDapperAsync(dbConn, type, Common._PrepareClear(_FixForSQLite(q), args), action);
-        }
-
-        public object QueryDapper(Type type, string q, List<string> args = null, Action<object> action = null)
-        {
-            if (commit_mode != CommitMode.AutoCommit)
-            {                
-                if (trans_started) SetTransState(false);    
-            }
-
-            return Common.QueryDapper(dbConn, type, Common._PrepareClear(_FixForSQLite(q), args));
-        }
-        */
         private void SetTransState(bool state)            
         {
             if(state)
